@@ -1,0 +1,28 @@
+{
+  "name": "investment",
+  "context": "..",
+  "dockerFile": "Dockerfile",
+  "postCreateCommand": "uv sync --locked",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+        "python.linting.enabled": true,
+        "python.linting.pylintEnabled": true,
+        "python.linting.pylintPath": "/usr/local/bin/pylint"
+      },
+      "extensions": [
+        "ms-python.python",
+        "coenraads.bracket-pair-colorizer-2",
+        "sanaajani.taskrunnercode",
+        "vscode-icons-team.vscode-icons",
+        "eamodio.gitlens",
+        "ms-vscode.cpptools",
+        "austin.code-gnu-global",
+        "grapecity.gc-excelviewer",
+        "ms-python.vscode-pylance",
+        "ms-python.black-formatter"
+      ]
+    }
+  }
+}

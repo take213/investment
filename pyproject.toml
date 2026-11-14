@@ -1,0 +1,18 @@
+[project]
+name = "investment"
+version = "0.1.0"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "ipython",
+    "jupyter",
+    "matplotlib",
+    "numpy",
+    "openpyxl",
+    "pandas",
+    "tqdm",
+    "xlrd",
+    "yfinance",
+]
+
+[tool.uv]
+package = false
