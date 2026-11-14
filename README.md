@@ -12,7 +12,7 @@ uv sync --locked
 
 ## 実行
 
-東証上場銘柄の株価データを取得し、結果を `data/investment_stats.csv` に保存します。進捗やエラーのログは標準出力に表示します。
+東証上場銘柄の株価データを取得し、結果を `data/investment_stats.csv` に保存します。取得状況は `tqdm` のステータスバーに表示し、進捗やエラーのログは標準出力に表示します。
 
 ```sh
 uv run --locked python src/main.py

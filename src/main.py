@@ -6,6 +6,7 @@ import time
 
 import pandas as pd
 import yfinance as yf
+from tqdm import tqdm
 
 PRICE_COLUMNS = ["最安値", "最高値", "現在値", "スケール(0-100)"]
 MARKET_COLUMN = "市場・商品区分"
@@ -112,7 +113,7 @@ def download_batch(
     start_date: date,
     end_date: date,
     ticker_data: dict[str, pd.DataFrame],
-) -> None:
+) -> int:
     batch_df = yf.download(
         batch,
         start=start_date,
@@ -122,8 +123,9 @@ def download_batch(
         progress=False,
     )
     if batch_df.empty:
-        return
+        return 0
 
+    downloaded = 0
     for ticker in batch:
         if isinstance(batch_df.columns, pd.MultiIndex):
             if ticker in batch_df.columns.get_level_values(0):
@@ -139,7 +141,10 @@ def download_batch(
 
         close_series = _as_series(ticker_df.get("Close"))
         if close_series is not None and close_series.notna().any():
+            if ticker not in ticker_data:
+                downloaded += 1
             ticker_data[ticker] = ticker_df
+    return downloaded
 
 
 def download_batches(
@@ -147,12 +152,13 @@ def download_batches(
     start_date: date,
     end_date: date,
     ticker_data: dict[str, pd.DataFrame],
+    progress: tqdm,
     batch_size: int = 50,
     pause_seconds: int = 2,
 ) -> None:
     for start in range(0, len(tickers), batch_size):
         batch = tickers[start : start + batch_size]
-        download_batch(batch, start_date, end_date, ticker_data)
+        progress.update(download_batch(batch, start_date, end_date, ticker_data))
         if start + batch_size < len(tickers):
             time.sleep(pause_seconds)
 
@@ -171,17 +177,22 @@ def main() -> None:
     retry_wait_seconds = [30, 60]
     ticker_data: dict[str, pd.DataFrame] = {}
 
-    download_batches(tickers, start_date, today, ticker_data)
-    for retry_number, wait_seconds in enumerate(retry_wait_seconds, start=1):
-        failed_tickers = [ticker for ticker in tickers if ticker not in ticker_data]
-        if not failed_tickers:
-            break
-        print(
-            f"未取得 {len(failed_tickers)} 銘柄。{wait_seconds} 秒待って再試行します "
-            f"({retry_number}/{len(retry_wait_seconds)})。"
-        )
-        time.sleep(wait_seconds)
-        download_batches(failed_tickers, start_date, today, ticker_data)
+    with tqdm(total=len(tickers), desc="株価取得", unit="銘柄") as progress:
+        download_batches(tickers, start_date, today, ticker_data, progress)
+        for retry_number, wait_seconds in enumerate(retry_wait_seconds, start=1):
+            failed_tickers = [ticker for ticker in tickers if ticker not in ticker_data]
+            if not failed_tickers:
+                break
+            print(
+                f"未取得 {len(failed_tickers)} 銘柄。{wait_seconds} 秒待って再試行します "
+                f"({retry_number}/{len(retry_wait_seconds)})。"
+            )
+            progress.set_description(
+                f"株価取得・再試行 {retry_number}/{len(retry_wait_seconds)}"
+            )
+            time.sleep(wait_seconds)
+            download_batches(failed_tickers, start_date, today, ticker_data, progress)
+            progress.set_description("株価取得")
 
     failed_tickers = [ticker for ticker in tickers if ticker not in ticker_data]
     stock_df = pd.concat(ticker_data, axis=1) if ticker_data else pd.DataFrame()
