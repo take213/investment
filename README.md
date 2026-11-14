@@ -10,6 +10,14 @@ Python 3.11 と [uv](https://docs.astral.sh/uv/) を使用します。依存パ�
 uv sync --locked
 ```
 
+## Lint
+
+Ruff でPythonコードをチェックします。
+
+```sh
+uv run --locked ruff check .
+```
+
 ## 依存パッケージの脆弱性チェック
 
 既知の脆弱性がないか確認するには、プロジェクトの仮想環境で `pip-audit` を実行します。
