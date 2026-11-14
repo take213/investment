@@ -10,6 +10,14 @@ Python 3.11 と [uv](https://docs.astral.sh/uv/) を使用します。依存パ�
 uv sync --locked
 ```
 
+## 実行
+
+東証上場銘柄の株価データを取得して一覧を表示します。
+
+```sh
+uv run --locked python src/main.py
+```
+
 ## Lint
 
 Ruff でPythonコードをチェックします。
