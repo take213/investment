@@ -13,8 +13,10 @@
       },
       "extensions": [
         "charliermarsh.ruff",
-        "ms-python.python",
         "github.vscode-github-actions",
+        "janisdd.vscode-edit-csv",
+        "mechatroner.rainbow-csv",
+        "ms-python.python",
         "ms-python.vscode-pylance",
         "mhutchie.git-graph"
       ]

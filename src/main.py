@@ -1,4 +1,4 @@
-"""東証上場銘柄の5年間の株価を取得し、価格レンジ内の位置を表示する。"""
+"""東証上場銘柄の5年間の株価を取得し、価格レンジ内の位置をCSVに出力する。"""
 
 from datetime import date, timedelta
 from pathlib import Path
@@ -10,6 +10,7 @@ import yfinance as yf
 PRICE_COLUMNS = ["最安値", "最高値", "現在値", "スケール(0-100)"]
 MARKET_COLUMN = "市場・商品区分"
 LISTING_FILE = Path(__file__).resolve().parents[1] / "data" / "data_j.xls"
+OUTPUT_FILE = LISTING_FILE.with_name("investment_stats.csv")
 
 
 def _as_series(value: pd.Series | pd.DataFrame | None) -> pd.Series | None:
@@ -196,7 +197,8 @@ def main() -> None:
     stats_df = add_listing_metadata(stats_df, listing_df)
     df_sorted = stats_df.sort_values("スケール(0-100)", ascending=True).copy()
     df_sorted.loc[:, PRICE_COLUMNS] = df_sorted[PRICE_COLUMNS].round(2)
-    print(df_sorted.to_string())
+    df_sorted.to_csv(OUTPUT_FILE, encoding="utf-8-sig", index_label="ticker")
+    print(f"CSV出力先: {OUTPUT_FILE}")
 
 
 if __name__ == "__main__":
